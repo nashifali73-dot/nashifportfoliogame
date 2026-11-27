@@ -25,6 +25,7 @@ Built with [Three.js](https://threejs.org/) (r128) in a single `index.html` file
 - **E:** get out of the auto and walk, or get back in
 - **Space:** horn while driving, jump while walking
 - **Enter:** open the place you're standing in
+- **C** (or the View button): switch between outside and inside (driver's seat) view
 - **R:** reset the auto to the start
 - **Scroll:** zoom in or out
 - **Minimap:** tap a place to jump there

@@ -116,6 +116,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #fff;outline-offset:2px;b
  <div class="badge"><b>Nashif Ali K</b><span>Digital marketing strategist · Kerala</span></div>
  <div class="tools">
   <button class="tb" id="bExit" aria-label="Get out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="5" r="2.2"/><path d="M12 8v6l-3 6M12 14l3 6M8 11h8"/></svg><span>Get out</span></button>
+  <button class="tb" id="bView" aria-pressed="false" aria-label="Inside view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Inside view</span></button>
   <button class="tb" id="bNight" aria-pressed="false" aria-label="Toggle night"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span>Night</span></button>
   <button class="tb" id="bRain" aria-pressed="false" aria-label="Toggle monsoon rain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 15a4 4 0 1 1 1-7.9A5.5 5.5 0 0 1 18.5 9 3.5 3.5 0 0 1 18 15z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></svg><span>Monsoon</span></button>
   <button class="tb" id="bSound" aria-pressed="true" aria-label="Toggle sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg><span>Sound</span></button>
@@ -124,7 +125,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #fff;outline-offset:2px;b
  <div id="fuel" role="meter" aria-label="Petrol" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M6 9h6M14 10h2a2 2 0 0 1 2 2v4a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg><div class="bar"><i id="fuelBar"></i></div><b id="fuelTxt">100%</b></div>
  <div id="toast" aria-live="polite"></div>
  <canvas id="mini" width="320" height="320" aria-label="Map. Tap a place to travel there."></canvas>
- <div class="help"><kbd>W A S D</kbd> or arrows to drive · <kbd>Shift</kbd> boost / run · <kbd>E</kbd> get out / in · <kbd>Space</kbd> horn or jump · <kbd>Enter</kbd> open place · <kbd>R</kbd> reset · scroll to zoom · tap the map to jump</div>
+ <div class="help"><kbd>W A S D</kbd> or arrows to drive · <kbd>Shift</kbd> boost / run · <kbd>E</kbd> get out / in · <kbd>Space</kbd> horn or jump · <kbd>Enter</kbd> open place · <kbd>C</kbd> inside view · <kbd>R</kbd> reset · scroll to zoom · tap the map to jump</div>
  <button id="prompt" aria-live="polite"><b id="pT">Place</b><small id="pS">Press Enter to open</small></button>
  <div id="joyHint">Touch &amp; drag here to drive</div>
  <button id="horn" aria-label="Horn">POM!</button>
@@ -961,7 +962,7 @@ function buildHousesAndLamps(){
 
 /* ================= autorickshaw ================= */
 const auto = new THREE.Group(); const body = new THREE.Group(); auto.add(body);
-let frontWheel, frontSpin, rearWheels = [], headlight, headMat;
+let frontWheel, frontSpin, rearWheels = [], headlight, headMat, handle, needle;
 function buildAuto(){
   const yellow = '#f5c400', black = '#17181a', chrome = '#c9c9c9';
   box(2.2,0.35,3.6,black,0,0.55,-0.2,body);
@@ -987,7 +988,23 @@ function buildAuto(){
   for (const px of [-1.05,1.05]) box(0.08,1.3,0.08,black,px,2.0,1.15,body);
   for (const px of [-0.95,0.95]){ box(0.04,0.45,0.04,'#444',px,2.25,1.75,body); box(0.22,0.16,0.06,black,px*1.05,2.5,1.75,body); }
   box(1.9,0.35,0.9,'#2a2320',0,1.75,-1.0,body); box(1.9,0.8,0.2,'#2a2320',0,2.05,-1.45,body);
-  box(0.7,0.25,0.6,'#2a2320',0,1.8,0.55,body); box(1.2,0.08,0.08,'#333',0,2.2,1.1,body);
+  box(0.7,0.25,0.6,'#2a2320',0,1.8,0.55,body);
+  // handlebar that turns with the steering
+  handle = new THREE.Group(); handle.position.set(0,2.18,1.12); body.add(handle);
+  box(0.08,0.35,0.08,'#333',0,-0.15,0.05,handle); box(1.15,0.07,0.07,M('#9a9a9a',{metalness:0.7,roughness:0.35}),0,0.04,0,handle);
+  for (const sx of [-1,1]){ const gp = cyl(0.055,0.055,0.26,10,'#151515',sx*0.62,0.04,0,handle); gp.rotation.z = Math.PI/2; box(0.18,0.03,0.05,'#444',sx*0.5,0.09,-0.07,handle); }
+  // speedometer facing the driver
+  const sp = new THREE.Group(); sp.position.set(0,2.33,1.2); sp.rotation.set(-0.5, Math.PI, 0); sp.scale.setScalar(0.42); body.add(sp);
+  const dc = document.createElement('canvas'); dc.width = dc.height = 256; const dg = dc.getContext('2d');
+  dg.fillStyle = '#101010'; dg.beginPath(); dg.arc(128,128,124,0,7); dg.fill(); dg.strokeStyle = '#f5c400'; dg.lineWidth = 8; dg.stroke();
+  dg.strokeStyle = '#ffffff'; dg.fillStyle = '#ffffff'; dg.font = '700 26px Manrope, sans-serif'; dg.textAlign = 'center'; dg.textBaseline = 'middle';
+  for (let i=0;i<=6;i++){ const a = Math.PI*0.75 + i/6*Math.PI*1.5; dg.lineWidth = 5; dg.beginPath(); dg.moveTo(128+Math.cos(a)*100,128+Math.sin(a)*100); dg.lineTo(128+Math.cos(a)*84,128+Math.sin(a)*84); dg.stroke(); dg.fillText(String(i*10), 128+Math.cos(a)*64, 128+Math.sin(a)*64); }
+  dg.font = '700 20px Manrope, sans-serif'; dg.fillText('km/h', 128, 190);
+  const face = new THREE.Mesh(new THREE.CircleGeometry(0.2, 28), new THREE.MeshBasicMaterial({map:texFrom(dc), toneMapped:false})); sp.add(face);
+  const rimS = new THREE.Mesh(new THREE.TorusGeometry(0.2,0.025,8,28), M('#c9c9c9',{metalness:0.7,roughness:0.3})); sp.add(rimS);
+  needle = new THREE.Group(); needle.position.z = 0.01; sp.add(needle);
+  const nd = new THREE.Mesh(new THREE.PlaneGeometry(0.014,0.16), new THREE.MeshBasicMaterial({color:lin('#ff3b1f'), toneMapped:false})); nd.position.y = 0.07; needle.add(nd);
+  box(0.22,0.07,0.12,'#1b1b1b',0,2.27,1.24,body); // dash pod
   const g1 = box(0.5,0.1,0.6,black,0,1.0,1.95,body); g1.rotation.x = -0.6; const g2 = box(0.5,0.1,0.5,black,0,1.05,1.45,body); g2.rotation.x = 0.5;
   const plate = new THREE.Mesh(new THREE.PlaneGeometry(0.95,0.3), new THREE.MeshBasicMaterial({map:signTex([{t:'KL 10 · NAK',s:120}],{w:512,h:160,bg:'#ffffff',rad:10}), toneMapped:false}));
   plate.position.set(0,0.72,2.13); body.add(plate);
@@ -1077,6 +1094,7 @@ addEventListener('keydown', e => {
   if (k === 'escape') closePanel();
   if (k === 'r' && !panelOpen && mode === 'drive') resetCar();
   if (k === 'n' && !panelOpen) toggleNight();
+  if ((k === 'c' || k === 'v') && !e.repeat && mode === 'drive') toggleView();
 });
 addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
@@ -1234,7 +1252,8 @@ function updateCar(dt){
   car.roll += (targetRoll - car.roll) * Math.min(1, dt*6); body.rotation.z = car.roll;
   car.bumpV += (-60*car.bump - 9*car.bumpV)*dt; car.bump += car.bumpV*dt; body.rotation.x = -Math.max(-0.05, Math.min(0.05, t*0.04)) - car.bump;
   body.position.y = Math.abs(car.v) > 1 ? Math.sin(performance.now()*0.03)*0.02 : 0;
-  car.spin += car.v * dt / 0.45; frontSpin.rotation.x = car.spin; rearWheels.forEach(w => w.rotation.x = car.spin); frontWheel.rotation.y = car.steer * 0.5;
+  car.spin += car.v * dt / 0.45; frontSpin.rotation.x = car.spin; rearWheels.forEach(w => w.rotation.x = car.spin); frontWheel.rotation.y = car.steer * 0.5; handle.rotation.y = car.steer * 0.5;
+  needle.rotation.z = -(Math.PI*0.75 + Math.min(1, Math.abs(car.v)*3.6*0.62/60)*Math.PI*1.5) + Math.PI/2 + Math.PI; // needle sweeps 0–60 km/h
   if (engGain && ac){ engOsc.frequency.setTargetAtTime(38 + Math.abs(car.v)*4.5 + (t?6:0), ac.currentTime, 0.08); engGain.gain.setTargetAtTime(soundOn && started && mode === 'drive' ? 0.025 + Math.abs(car.v)*0.0025 : 0.012, ac.currentTime, 0.1); rainGain.gain.setTargetAtTime(rainOn && soundOn ? 0.05 : 0, ac.currentTime, 0.3); }
 }
 const btnExit = document.getElementById('bExit'), hornBtn = document.getElementById('horn');
@@ -1249,8 +1268,8 @@ function toggleWalk(){
   if (mode === 'drive'){
     car.v = 0; const sx = Math.cos(car.h), sz = -Math.sin(car.h);
     walker.x = car.x + sx*2.3; walker.z = car.z + sz*2.3; walker.h = car.h; walker.v = 0; walker.y = 0; walker.vy = 0;
-    mode = 'walk'; person.visible = true; thud(2);
-  } else if (Math.hypot(walker.x-car.x, walker.z-car.z) < 4.5){ mode = 'drive'; person.visible = false; horn(); }
+    mode = 'walk'; person.visible = true; thud(2); if (camMode === 'inside') resize();
+  } else if (Math.hypot(walker.x-car.x, walker.z-car.z) < 4.5){ mode = 'drive'; person.visible = false; horn(); resize(); }
   else toast('Walk back to the auto to get in');
   setExitLabel();
 }
@@ -1300,7 +1319,26 @@ function updateProps(dt){
 const camTarget = new THREE.Vector3(), look = new THREE.Vector3();
 let camZoomK = 1;
 function camOffset(){ const portrait = innerHeight > innerWidth; const z = zoom*camZoomK; return portrait ? new THREE.Vector3(0, 30*z, 34*z) : new THREE.Vector3(0, 17*z, 25*z); }
+let camMode = 'follow';
+const bView = document.getElementById('bView');
+function toggleView(){ camMode = camMode === 'follow' ? 'inside' : 'follow'; bView.setAttribute('aria-pressed', camMode === 'inside'); bView.querySelector('span').textContent = camMode === 'inside' ? 'Outside view' : 'Inside view'; bView.setAttribute('aria-label', camMode === 'inside' ? 'Outside view' : 'Inside view'); if (camMode === 'inside') insideSnap = true; resize(); }
+bView.onclick = () => { if (mode === 'walk'){ toast('Get in the auto for the inside view'); return; } toggleView(); };
+let insideSnap = false;
+const eyeL = new THREE.Vector3(), aimL = new THREE.Vector3();
+const insideNow = () => camMode === 'inside' && mode === 'drive';
 function updateCamera(dt, snap){
+  if (insideNow()){ // driver's seat view
+    auto.updateMatrixWorld(true);
+    eyeL.set(0, 2.82, 0.05); body.localToWorld(eyeL);
+    aimL.set(-car.steer*2.2, 2.35, 12); body.localToWorld(aimL);
+    camera.position.copy(eyeL); insideSnap = false;
+    if (shake > 0.001 && dt){ const tt = performance.now()*0.05; camera.position.x += Math.sin(tt*1.7)*shake*0.15; camera.position.y += Math.sin(tt*2.3)*shake*0.1; shake *= Math.exp(-dt*7); }
+    camera.lookAt(aimL); camera.rotateZ(-car.roll*0.5);
+    sky.position.copy(camera.position);
+    sun.position.set(car.x + SUN_DIR.x*90, SUN_DIR.y*90, car.z + SUN_DIR.z*90); sun.target.position.set(car.x, 0, car.z);
+    uCar.value.set(car.x, 0, car.z); uCam.value.set(0,-1000,0); uFocus.value.set(0,-1001,0);
+    return;
+  }
   const A = active(); camZoomK += ((mode === 'drive' ? 1 : 0.62) - camZoomK) * Math.min(1, (dt||1)*3);
   const lead = 0.35; look.set(A.x + Math.sin(A.h)*A.v*lead, 0, A.z + Math.cos(A.h)*A.v*lead);
   camTarget.copy(look).add(camOffset());
@@ -1346,7 +1384,7 @@ mini.addEventListener('click', e => {
 });
 
 /* ================= loop ================= */
-function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w/h; camera.fov = w < h ? 55 : 45; camera.updateProjectionMatrix(); }
+function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w/h; const inside = camMode === 'inside' && mode === 'drive'; camera.fov = inside ? (w < h ? 78 : 66) : (w < h ? 55 : 45); camera.near = inside ? 0.06 : 0.5; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize);
 let started = false, last = performance.now(), built = false;
 function frame(now){
